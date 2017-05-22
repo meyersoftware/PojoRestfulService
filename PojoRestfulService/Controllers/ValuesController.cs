@@ -15,7 +15,7 @@ namespace PojoRestfulService.Controllers
         {
             string sFileContents = "";
 
-            using (StreamReader oStreamReader = new StreamReader(File.OpenRead("C:\\tmpData\\mm2017Matchups.csv")))
+            using (StreamReader oStreamReader = new StreamReader(File.OpenRead("mm2017Matchups.csv")))
             {
                 sFileContents = oStreamReader.ReadToEnd();
             }
