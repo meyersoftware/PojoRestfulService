@@ -15,7 +15,12 @@ namespace PojoRestfulService.Controllers
         {
             string sFileContents = "";
 
-            using (StreamReader oStreamReader = new StreamReader(File.OpenRead("mm2017Matchups.csv")))
+            var url = "http://pwp.apphb.com//mm2017Matchups.csv";
+            //var url = "http://localhost:50209/mm2017Matchups.csv";
+
+            WebClient wc = new WebClient();
+
+            using (StreamReader oStreamReader = new StreamReader(wc.OpenRead(url)))
             {
                 sFileContents = oStreamReader.ReadToEnd();
             }
