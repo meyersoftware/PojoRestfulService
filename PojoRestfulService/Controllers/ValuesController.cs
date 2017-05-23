@@ -13,25 +13,7 @@ namespace PojoRestfulService.Controllers
         // GET api/values
         public double[] Get()
         {
-            string sFileContents = "";
-
-            var url = "http://pwp.apphb.com//mm2017Matchups.csv";
-            //var url = "http://localhost:50209/mm2017Matchups.csv";
-
-            WebClient wc = new WebClient();
-
-            using (StreamReader oStreamReader = new StreamReader(wc.OpenRead(url)))
-            {
-                sFileContents = oStreamReader.ReadToEnd();
-            }
-
-            List<string[]> oCsvList = new List<string[]>();
-
-            string[] sFileLines = sFileContents.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            foreach (string sFileLine in sFileLines)
-            {
-                oCsvList.Add(sFileLine.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries));
-            }
+            List<string[]> oCsvList = ReadFile();
 
             int iColumnNumber = 1;
             int iRowNumber = 1;
@@ -55,25 +37,7 @@ namespace PojoRestfulService.Controllers
         // GET api/values/5
         public double[] Get(int year, double team1, double team2)
         {
-            string sFileContents = "";
-
-            var url = "http://pwp.apphb.com//mm2017Matchups.csv";
-            //var url = "http://localhost:50209/mm2017Matchups.csv";
-
-            WebClient wc = new WebClient();
-
-            using (StreamReader oStreamReader = new StreamReader(wc.OpenRead(url)))
-            {
-                sFileContents = oStreamReader.ReadToEnd();
-            }
-
-            List<string[]> oCsvList = new List<string[]>();
-
-            string[] sFileLines = sFileContents.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            foreach (string sFileLine in sFileLines)
-            {
-                oCsvList.Add(sFileLine.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries));
-            }
+            List<string[]> oCsvList = ReadFile();
 
             int iColumnNumber = 0;
             int iRowNumber = 0;
@@ -102,19 +66,89 @@ namespace PojoRestfulService.Controllers
             return preds;
         }
 
-        // POST api/values
-        public void Post([FromBody]string value)
+        [System.Web.Http.HttpGet]
+        public string[] GetTeamList()
         {
+            List<string[]> oCsvList = ReadFile();
+
+            int iColumnNumber = 0;
+            int iRowNumber = 0;
+
+            List<string> teams = new List<string>();
+            string previousTeam = "";
+
+            for (iColumnNumber = 1; iColumnNumber < oCsvList.Count; iColumnNumber++)
+            {
+                try
+                {
+                    if (oCsvList[iColumnNumber][iRowNumber].ToString().Substring(5, 4) != previousTeam)
+                    {
+                        teams.Add(oCsvList[iColumnNumber][iRowNumber].ToString().Substring(5, 4));
+                        previousTeam = oCsvList[iColumnNumber][iRowNumber].ToString().Substring(5, 4);
+                    }
+                }
+                catch (Exception ex)
+                { //do nothing
+                }
+            }
+            return teams.ToArray<string>();
         }
 
-        // PUT api/values/5
-        public void Put(int id, [FromBody]string value)
+        [System.Web.Http.HttpGet]
+        public string[] GetOpposingTeamList(string team)
         {
+            List<string[]> oCsvList = ReadFile();
+
+            int iColumnNumber = 0;
+            int iRowNumber = 0;
+
+            List<string> teams = new List<string>();
+            
+            string previousTeam = "";
+
+            for (iColumnNumber = 1; iColumnNumber < oCsvList.Count; iColumnNumber++)
+            {
+                try
+                {
+                    if (oCsvList[iColumnNumber][iRowNumber].ToString().Substring(5, 4) == team)
+                    {
+                        if (oCsvList[iColumnNumber][iRowNumber].ToString().Substring(10, 4) != previousTeam)
+                        {
+                            teams.Add(oCsvList[iColumnNumber][iRowNumber].ToString().Substring(10, 4));
+                            previousTeam = oCsvList[iColumnNumber][iRowNumber].ToString().Substring(10, 4);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                { //do nothing
+                }
+            }
+            return teams.ToArray<string>();
         }
 
-        // DELETE api/values/5
-        public void Delete(int id)
+        private static List<string[]> ReadFile()
         {
+            string sFileContents = "";
+
+            var url = "http://pwp.apphb.com//mm2017Matchups.csv";
+            //var url = "http://localhost:50209/mm2017Matchups.csv";
+
+            WebClient wc = new WebClient();
+
+            using (StreamReader oStreamReader = new StreamReader(wc.OpenRead(url)))
+            {
+                sFileContents = oStreamReader.ReadToEnd();
+            }
+
+            List<string[]> oCsvList = new List<string[]>();
+
+            string[] sFileLines = sFileContents.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            foreach (string sFileLine in sFileLines)
+            {
+                oCsvList.Add(sFileLine.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries));
+            }
+
+            return oCsvList;
         }
     }
 }
